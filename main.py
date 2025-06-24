@@ -131,7 +131,7 @@ async def on_startup():
                 f"{BASE_WEBHOOK_URL}{WEBHOOK_PATH}",
                 drop_pending_updates=True
             )
-        await bot.send_message(ADMIN_ID, "🤖 Бот успешно запущен!")
+        await bot.send_message("🤖 Бот успешно запущен!")
     except Exception as e:
         logging.error(f"🚨 Ошибка при запуске: {e}")
         raise
@@ -141,7 +141,7 @@ async def on_shutdown():
     try:
         if BASE_WEBHOOK_URL:
             await bot.delete_webhook()
-        await bot.send_message(ADMIN_IDS, "⚠️ Бот выключается...")
+        await bot.send_message("⚠️ Бот выключается...")
         await bot.session.close()
     except Exception as e:
         logging.error(f"🚨 Ошибка при выключении: {e}")
