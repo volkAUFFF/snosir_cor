@@ -81,10 +81,10 @@ from aiosend import CryptoPay
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    stream=sys.stdout
+    stream=sys.stdout)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN") 
-CP_TOKEN = os.getenv("SEND_API_KEY") 
+CP_TOKEN = os.getenv("CP_TOKEN") 
 ADMIN_IDS = {285376592, 767154085}
 
 WELCOME_PHOTO = "https://i.postimg.cc/VLn67tqY/photo-2025-06-24-14-23-23.jpg"
