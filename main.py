@@ -85,8 +85,15 @@ logging.basicConfig(
 
 BOT_TOKEN = os.getenv("BOT_TOKEN") 
 CP_TOKEN = os.getenv("CP_TOKEN") 
-ADMIN_IDS = {285376592, 767154085}
-ADMIN_ID = {285376592, 767154085}
+
+# Стало (выберите один вариант):
+ADMIN_ID = [285376592, 767154085]  # вариант 1 - список
+ADMIN_ID = (285376592, 767154085)   # вариант 2 - кортеж
+
+
+# Стало (выберите один вариант):
+ADMIN_IDS = [285376592, 767154085]  # вариант 1 - список
+ADMIN_IDS = (285376592, 767154085)   # вариант 2 - кортеж
 
 WELCOME_PHOTO = "https://i.postimg.cc/VLn67tqY/photo-2025-06-24-14-23-23.jpg"
 logger = logging.getLogger(__name__)
