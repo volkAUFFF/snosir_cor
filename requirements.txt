@@ -1,0 +1,6 @@
+aiogram
+aiosend
+aiohttp
+flask
+aiohttp>=3.8
+pytz
