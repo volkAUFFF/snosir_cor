@@ -179,18 +179,56 @@ async def setup_webhook():
 
 
 
-
 def init_db():
     with sqlite3.connect("users.db") as conn:
+        # Включаем поддержку внешних ключей
+        conn.execute("PRAGMA foreign_keys = ON")
+        
+        # Создаем таблицу users с явным указанием типов данных
         conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
+            user_id INTEGER PRIMARY KEY NOT NULL,
             username TEXT,
-            subscription_until TEXT,
-            registered_at TEXT
+            subscription_until TEXT DEFAULT 'Нет',
+            registered_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """)
+        
+        # Создаем индекс для быстрого поиска
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_user_id ON users(user_id)")
         conn.commit()
+        
+def get_db_path():
+    import os
+    # На Render используем /tmp/ для временных файлов
+    if "RENDER" in os.environ:
+        return "/tmp/users.db"
+    return "users.db"
+def check_and_repair_db():
+    try:
+        with sqlite3.connect("users.db") as conn:
+            # Проверяем существование таблицы
+            table_exists = conn.execute("""
+                SELECT count(*) FROM sqlite_master 
+                WHERE type='table' AND name='users'
+            """).fetchone()[0]
+            
+            if not table_exists:
+                logging.warning("Таблица users не найдена, создаем заново")
+                init_db()
+                
+    except Exception as e:
+        logging.error(f"Ошибка проверки БД: {e}")
+        # Пытаемся восстановить
+        try:
+            import os
+            if os.path.exists("users.db"):
+                os.rename("users.db", "users.db.bak")
+            init_db()
+        except Exception as e:
+            logging.critical(f"Не удалось восстановить БД: {e}")
+            raise
+            
 
 def fix_none_registrations():
     with sqlite3.connect("users.db") as conn:
@@ -198,14 +236,22 @@ def fix_none_registrations():
                     (datetime.now().isoformat(),))
         conn.commit()
 
-def add_user(uid, username):
-    with sqlite3.connect("users.db") as conn:
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Более читаемый формат
-        conn.execute("""INSERT OR IGNORE INTO users 
-                      (user_id, username, subscription_until, registered_at) 
-                      VALUES (?, ?, ?, ?)""",
-                   (uid, username, "Нет", now))
-        conn.commit()
+def add_user(uid: int, username: str):
+    try:
+        with sqlite3.connect("users.db") as conn:
+            conn.execute("""
+            INSERT OR IGNORE INTO users (user_id, username)
+            VALUES (?, ?)
+            """, (uid, username))
+            conn.commit()
+    except sqlite3.Error as e:
+        logging.error(f"Ошибка добавления пользователя {uid}: {e}")
+        # Пытаемся восстановить БД при ошибке
+        check_and_repair_db()
+
+
+
+
 
 
 def fix_broken_dates():
