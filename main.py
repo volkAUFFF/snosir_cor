@@ -115,7 +115,7 @@ user_state = {}
 report_data = {}
 
 
- ===== ОСНОВНЫЕ ФУНКЦИИ =====
+
 async def on_startup():
     """Действия при запуске бота"""
     try:
